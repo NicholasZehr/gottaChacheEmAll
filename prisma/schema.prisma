@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// AS YOU WORK YOU CAN npx prisma db push FROM THE TERMINAL TO UPDATE THE DB!
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Pokemon {
+  id Int @id @default(autoincrement())
+  name String @unique
+  // Question mark - ? - after the type signifies its an optional field
+  url String?
+  // Add the Many-to-Many relationship with the thru talbe
+  pokemon_trainers Pokemon_Trainers[]
+
+}
+
+model Pokemon_Trainers {
+  id Int @id @default(autoincrement())
+  // This delcares the relations and what fields on the row reference
+  pokemon Pokemon @relation(fields: [pokemon_id], references: [id])
+    // Ex. The field pokemon_id references the id of the Pokemon Table
+  pokemon_id Int
+  // Same relation the other way with the Trainer Table
+  trainer Trainer @relation(fields: [trainer_id], references: [id])
+  trainer_id Int
+}
+
+model Trainer {
+  id Int @id @default(autoincrement())
+  name String 
+  pokemon_trainers Pokemon_Trainers[]
+  trainer_items Trainer_Items[]
+}
+
+model Trainer_Items {
+  id Int @id @default(autoincrement())
+  trainer Trainer @relation(fields: [trainer_id], references: [id])
+  trainer_id Int
+  items Items @relation(fields: [item_id], references: [id])
+  item_id Int
+}
+
+model Items {
+  id Int @id @default(autoincrement())
+  name String?
+  type String?
+  description String?
+  price Int?
+  inventory Int?
+  trainer_items Trainer_Items[]
+  imageUrl String?
+  floors Floors @relation(fields: [floor_id], references: [id])
+  floor_id Int
+}
+
+model Floors {
+  id Int @id @default(autoincrement())
+  name String
+  items Items[]
+}
